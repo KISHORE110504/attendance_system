@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import ttk
 from PIL import Image,ImageTk
+from tkinter import messagebox
+import mysql.connector
 
 class Student:
     def __init__(self,root):
@@ -12,6 +14,21 @@ class Student:
         screen_height = self.root.winfo_screenheight()
         self.root.geometry(f"{screen_width}x{screen_height}+0+0")
         
+        #variables
+        self.var_dep = StringVar()
+        self.var_course = StringVar()
+        self.var_year = StringVar()
+        self.var_semester = StringVar()
+        self.var_std_id = StringVar()
+        self.var_std_name = StringVar()
+        self.var_div = StringVar()
+        self.var_roll = StringVar()
+        self.var_gender = StringVar()
+        self.var_dob = StringVar()
+        self.var_email = StringVar()
+        self.var_phone = StringVar()
+        self.var_address = StringVar()
+        self.var_teacher = StringVar()
         
         #bg image
         img = Image.open(r"D:\Projects\Attendance_System\Images\real_black.png")
@@ -39,7 +56,7 @@ class Student:
         dep_label = Label(Current_course_frame, text="Department", font=("times new roman", 13, "bold"), bg="white")
         dep_label.grid(row=0, column= 0, padx = 10, pady = 10, sticky = W)
         
-        dep_combo = ttk.Combobox(Current_course_frame, font=("times new roman", 13, "bold"), width = 17, state="readonly")
+        dep_combo = ttk.Combobox(Current_course_frame, textvariable=self.var_dep, font=("times new roman", 13, "bold"), width = 17, state="readonly")
         dep_combo["values"] = ("Select Department", "Computer", "IT", "AIDS", "Mechanical")
         dep_combo.current(0)
         dep_combo.grid(row=0, column= 1, padx = 2, pady= 10, sticky = W)
@@ -48,7 +65,7 @@ class Student:
         course_label = Label(Current_course_frame, text="Course", font=("times new roman", 13, "bold"), bg="white")
         course_label.grid(row=0, column= 2, padx = 15, pady= 10, sticky = W)
         
-        course_combo = ttk.Combobox(Current_course_frame, font=("times new roman",13,"bold"), state="readonly", width = 17)
+        course_combo = ttk.Combobox(Current_course_frame, textvariable=self.var_course, font=("times new roman",13,"bold"), state="readonly", width = 17)
         course_combo["values"] = ("Select Course", "FE","SE","TE","BE")
         course_combo.current(0)
         course_combo.grid(row=0,column=3, padx = 2, pady = 10, sticky = W)
@@ -57,7 +74,7 @@ class Student:
         year_label = Label(Current_course_frame, text = "Year", font=("times new roman",13,"bold"), bg="white")
         year_label.grid(row =1,column = 0, padx = 10, sticky = W)
 
-        year_combo = ttk.Combobox(Current_course_frame, font=("times new roman",13,"bold"), state="readonly", width = 17)
+        year_combo = ttk.Combobox(Current_course_frame, textvariable=self.var_year, font=("times new roman",13,"bold"), state="readonly", width = 17)
         year_combo["values"] = ("Select Year","2020-21","2021-22","2022-23","2023-24")
         year_combo.current(0)
         year_combo.grid(row=1, column = 1, padx = 2, pady = 10, sticky = W)
@@ -66,7 +83,7 @@ class Student:
         semester_label = Label(Current_course_frame, text="Semester", font=("times new roman", 13, "bold"), bg="white")
         semester_label.grid(row=1,column=2, padx=10, sticky=W)
         
-        semester_combo = ttk.Combobox(Current_course_frame, font=("times new roman", 13, "bold"), state="readonly", width=17)
+        semester_combo = ttk.Combobox(Current_course_frame, textvariable=self.var_semester, font=("times new roman", 13, "bold"), state="readonly", width=17)
         semester_combo["values"]=("Select Semester", "Semester-1", "Semester-2")
         semester_combo.current(0)
         semester_combo.grid(row=1,column=3,padx=2,pady=10, sticky=W)
@@ -76,7 +93,7 @@ class Student:
         class_Student_frame.place(x=10, y=150, width=630, height=300)
         
         #student id
-        studentID_label = Label(class_Student_frame, text="StudentID:", font=("times new roman", 13, "bold"), bg="white")
+        studentID_label = Label(class_Student_frame, text="StudentID:", textvariable=self.var_std_id, font=("times new roman", 13, "bold"), bg="white")
         studentID_label.grid(row=0,column=0, padx=10, pady= 5, sticky=W)
         
         studentID_entry = ttk.Entry(class_Student_frame, width= 17, font=("times new roman", 13, "bold"))
@@ -86,77 +103,79 @@ class Student:
         studentName_label = Label(class_Student_frame, text="Student Name:", font=("times new roman", 13, "bold"), bg="white")
         studentName_label.grid(row=0,column=2, padx=10, pady=5, sticky=W)
         
-        studentName_entry = ttk.Entry(class_Student_frame, width= 17, font=("times new roman", 13, "bold"))
+        studentName_entry = ttk.Entry(class_Student_frame, width= 17, textvariable=self.var_std_name, font=("times new roman", 13, "bold"))
         studentName_entry.grid(row=0, column=3, padx=10, pady=5, sticky=W)
         
         #class division
         class_div_label = Label(class_Student_frame, text="Class Division:", font=("times new roman", 13, "bold"), bg="white")
         class_div_label.grid(row=1,column=0, padx=10, pady=5, sticky=W)
         
-        class_div_entry = ttk.Entry(class_Student_frame, width= 17, font=("times new roman", 13, "bold"))
+        class_div_entry = ttk.Entry(class_Student_frame, width= 17, textvariable=self.var_div, font=("times new roman", 13, "bold"))
         class_div_entry.grid(row=1, column=1, padx=10, pady=5, sticky=W)
         
         #Roll no
         roll_no_label = Label(class_Student_frame, text="Roll No:", font=("times new roman", 13, "bold"), bg="white")
         roll_no_label.grid(row=1,column=2, padx=10, pady=5, sticky=W)
         
-        roll_no_entry = ttk.Entry(class_Student_frame, width= 17, font=("times new roman", 13, "bold"))
+        roll_no_entry = ttk.Entry(class_Student_frame, width= 17, textvariable=self.var_roll, font=("times new roman", 13, "bold"))
         roll_no_entry.grid(row=1, column=3, padx=10, pady=5, sticky=W)
         
         #Gender
         gender_label = Label(class_Student_frame, text="Gender:", font=("times new roman", 13, "bold"), bg="white")
         gender_label.grid(row=2,column=0, padx=10, pady=5, sticky=W)
         
-        gender_entry = ttk.Entry(class_Student_frame, width= 17, font=("times new roman", 13, "bold"))
+        gender_entry = ttk.Entry(class_Student_frame, width= 17, textvariable=self.var_gender, font=("times new roman", 13, "bold"))
         gender_entry.grid(row=2, column=1, padx=10, pady=5, sticky=W)
         
         #DOB
         dob_label = Label(class_Student_frame, text="DOB:", font=("times new roman", 13, "bold"), bg="white")
         dob_label.grid(row=2,column=2, padx=10, pady=5, sticky=W)
         
-        dob_entry = ttk.Entry(class_Student_frame, width= 17, font=("times new roman", 13, "bold"))
+        dob_entry = ttk.Entry(class_Student_frame, width= 17, textvariable=self.var_dob, font=("times new roman", 13, "bold"))
         dob_entry.grid(row=2, column=3, padx=10, pady=5, sticky=W)
         
         #Email
         email_label = Label(class_Student_frame, text="Email:", font=("times new roman", 13, "bold"), bg="white")
         email_label.grid(row=3,column=0, padx=10, pady=5, sticky=W)
         
-        email_entry = ttk.Entry(class_Student_frame, width= 17, font=("times new roman", 13, "bold"))
+        email_entry = ttk.Entry(class_Student_frame, textvariable=self.var_email, width= 17, font=("times new roman", 13, "bold"))
         email_entry.grid(row=3, column=1, padx=10, pady=5, sticky=W)
         
         #Phone no
         phone_label = Label(class_Student_frame, text="Phone No:", font=("times new roman", 13, "bold"), bg="white")
         phone_label.grid(row=3,column=2, padx=10, pady=5, sticky=W)
         
-        phone_entry = ttk.Entry(class_Student_frame, width= 17, font=("times new roman", 13, "bold"))
+        phone_entry = ttk.Entry(class_Student_frame, textvariable=self.var_phone, width= 17, font=("times new roman", 13, "bold"))
         phone_entry.grid(row=3, column=3, padx=10, pady=5, sticky=W)
         
         #Address
         address_label = Label(class_Student_frame, text="Address:", font=("times new roman", 13, "bold"), bg="white")
         address_label.grid(row=4,column=0, padx=10, pady=5, sticky=W)
         
-        address_entry = ttk.Entry(class_Student_frame, width= 17, font=("times new roman", 13, "bold"))
+        address_entry = ttk.Entry(class_Student_frame, textvariable=self.var_address, width= 17, font=("times new roman", 13, "bold"))
         address_entry.grid(row=4, column=1, padx=10, pady=5, sticky=W)
         
         #Teacher name
         teacher_label = Label(class_Student_frame, text="Teacher Name:", font=("times new roman", 13, "bold"), bg="white")
         teacher_label.grid(row=4,column=2, padx=10, pady=5, sticky=W)
         
-        teacher_entry = ttk.Entry(class_Student_frame, width= 17, font=("times new roman", 13, "bold"))
+        teacher_entry = ttk.Entry(class_Student_frame, textvariable=self.var_teacher, width= 17, font=("times new roman", 13, "bold"))
         teacher_entry.grid(row=4, column=3, padx=10, pady=5, sticky=W)
         
         #radio butttons
-        radionbtn1 = ttk.Radiobutton(class_Student_frame, text="Take Photo Sample", value="Yes")
+        self.var_radio1 = StringVar()
+        radionbtn1 = ttk.Radiobutton(class_Student_frame, textvariable = self.var_radio1, text="Take Photo Sample", value="Yes")
         radionbtn1.grid(row = 6, column = 0)
         
-        radionbtn2 = ttk.Radiobutton(class_Student_frame, text="No Photo Sample", value="Yes")
+        self.var_radio2 = StringVar()
+        radionbtn2 = ttk.Radiobutton(class_Student_frame, textvariable = self.var_radio2, text="No Photo Sample", value="No")
         radionbtn2.grid(row = 6, column = 1)
         
         #bbuttons frame
         btn_frame = Frame(class_Student_frame, bd=2, relief=RIDGE, bg="white")
         btn_frame.place(x=4, y=205, width=615, height=70)
         
-        save_btn = Button(btn_frame, text="Save", width=14, font=("times new roman", 13, "bold"), bg="blue", fg="white")
+        save_btn = Button(btn_frame, text="Save", command=self.add_data, width=14, font=("times new roman", 13, "bold"), bg="blue", fg="white")
         save_btn.grid(row =0, column =0)
         
         update_btn = Button(btn_frame, text="Update", width=14, font=("times new roman", 13, "bold"), bg="blue", fg="white")
@@ -252,6 +271,13 @@ class Student:
         
         self.student_table.pack(fill=BOTH, expand=1)
         
+    #FUNCTION DECLARATION
+    def add_data(self):
+        if self.var_dep.get() == "Select Department" or self.var_std_name.get() == "" or self.var_std_id.get() == "":
+            messagebox.showerror("Error", "All fields are required", parent=self.root)
+        else:
+            messagebox.showinfo("success", "Welcome")
+            
         
         
 if __name__ == "__main__":

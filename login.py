@@ -32,8 +32,17 @@ class Login_Window:
         get_str.place(x=95, y=120)
         
         #label
-        username = Label(frame, text="Username", font=("times new roman", 15, "bold"), bg="white", fg="gray")
-        username.place(x= 30, y=180)
+        username = Label(frame, text="Username", font=("times new roman", 15, "bold"), bg="white", fg="black")
+        username.place(x= 40, y=180)
+        
+        self.txtuser = ttk.Entry(frame, text="Username", font=("times new roman", 15, "bold"))
+        self.txtuser.place(x=40,y=210, width=270)
+        
+        password = Label(frame, text="Password", font=("times new roman", 15, "bold"), bg="white", fg="black")
+        password.place(x= 40, y=250)
+        
+        self.txtpass = ttk.Entry(frame, text="Password", font=("times new roman", 15, "bold"))
+        self.txtpass.place(x=40,y=280, width=270)
         
         
         

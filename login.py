@@ -1,6 +1,9 @@
 from tkinter import *
 from tkinter import ttk
 from PIL import Image,ImageTk
+from tkinter import messagebox
+import mysql.connector
+import cv2
 
 class Login_Window:
     def __init__(self,root):
@@ -31,11 +34,15 @@ class Login_Window:
         get_str = Label(frame, text="Get Started", font=("times new roman", 20, "bold"), bg="white", fg="black")
         get_str.place(x=95, y=120)
         
+        #style
+        style = ttk.Style()
+        style.configure("Gray.TEntry", fieldbackground="lightgray", font=("times new roman", 15, "bold"))
+        
         #label
         username = Label(frame, text="Username", font=("times new roman", 15, "bold"), bg="white", fg="black")
         username.place(x= 40, y=180)
         
-        self.txtuser = ttk.Entry(frame, text="Username", font=("times new roman", 15, "bold"))
+        self.txtuser = ttk.Entry(frame, text="Username", font=("times new roman", 15, "bold"), style="Gray.TEntry")
         self.txtuser.place(x=40,y=210, width=270)
         
         password = Label(frame, text="Password", font=("times new roman", 15, "bold"), bg="white", fg="black")
@@ -43,6 +50,28 @@ class Login_Window:
         
         self.txtpass = ttk.Entry(frame, text="Password", font=("times new roman", 15, "bold"))
         self.txtpass.place(x=40,y=280, width=270)
+        
+        #login button
+        loginbtn = Button(frame, command=self.login, text= "Login", font=("times new roman", 15, "bold"), bd = 3, relief=RIDGE, fg= "black", bg = "darkgreen", activeforeground="white", activebackground="darkgreen")
+        loginbtn.place(x=80, y=330, width=180, height= 35)
+        
+        #register button
+        registerbtn = Button(frame, text= "New User? Register", font=("times new roman", 9, "bold"),borderwidth=0, fg= "black", bg = "white", activeforeground="darkgreen", activebackground="white")
+        registerbtn.place(x=-5, y=385, width=180, height= 25)
+        
+        #forget password button
+        forgetbtn = Button(frame, text= "Forget Password", font=("times new roman", 9, "bold"), borderwidth=0, fg= "black", bg = "white", activeforeground="darkgreen", activebackground="white")
+        forgetbtn.place(x=-13, y=405, width=180, height= 25)
+    
+    def login(self):
+        if self.txtuser.get()=="" or self.txtpass.get()=="":
+            messagebox.showerror("Error", "All fields are required", parent=self.root)
+        elif self.txtuser.get()=="admin" and self.txtpass.get()=="admin":
+            messagebox.showinfo("Success", "Welcome", parent=self.root)
+        else:
+            messagebox.showerror("Invalid", "Invalid username and password", parent=self.root)
+            
+        
         
         
         

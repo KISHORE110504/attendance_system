@@ -6,6 +6,9 @@ import os
 from student import Student
 from train import Train
 from face_recognition import Face_recognition
+from attendance import Attendance
+import webbrowser
+import tkinter
 
 class Face_Recognition_System:
     def __init__(self,root):
@@ -56,10 +59,10 @@ class Face_Recognition_System:
         img3 = img3.resize((220,220), Image.LANCZOS)
         self.photoimg3 = ImageTk.PhotoImage(img3)
         
-        b1 = Button(bg_img, image=self.photoimg3, cursor="hand2")
+        b1 = Button(bg_img, image=self.photoimg3, cursor="hand2", command= self.attendance_data)
         b1.place(x = 700, y = 100, width = 220, height = 220)
         
-        b1 = Button(bg_img, text = "Attendance", cursor="hand2", font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
+        b1 = Button(bg_img, text = "Attendance", cursor="hand2", command= self.attendance_data, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
         b1.place(x = 700, y = 300, width = 220, height = 40)
         
         #Help desk button
@@ -67,10 +70,10 @@ class Face_Recognition_System:
         img4 = img4.resize((220,220), Image.LANCZOS)
         self.photoimg4 = ImageTk.PhotoImage(img4)
         
-        b1 = Button(bg_img, image=self.photoimg4, cursor="hand2")
+        b1 = Button(bg_img, image=self.photoimg4, cursor="hand2", command=self.show_help_popup)
         b1.place(x = 1000, y = 100, width = 220, height = 220)
         
-        b1 = Button(bg_img, text = "Help desk", cursor="hand2", font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
+        b1 = Button(bg_img, text = "Help desk", cursor="hand2", command=self.show_help_popup, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
         b1.place(x = 1000, y = 300, width = 220, height = 40)
         
         #Train button
@@ -78,7 +81,7 @@ class Face_Recognition_System:
         img5 = img5.resize((220,220), Image.LANCZOS)
         self.photoimg5 = ImageTk.PhotoImage(img5)
         
-        b1 = Button(bg_img, image=self.photoimg5, cursor="hand2")
+        b1 = Button(bg_img, image=self.photoimg5, cursor="hand2", command = self.train_data)
         b1.place(x = 100, y = 400, width = 220, height = 220)
         
         b1 = Button(bg_img, text = "Train Data", cursor="hand2", command = self.train_data, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
@@ -100,10 +103,10 @@ class Face_Recognition_System:
         img7 = img7.resize((220,220), Image.LANCZOS)
         self.photoimg7 = ImageTk.PhotoImage(img7)
         
-        b1 = Button(bg_img, image=self.photoimg7, cursor="hand2")
+        b1 = Button(bg_img, image=self.photoimg7, cursor="hand2", command=self.open_developer_website)
         b1.place(x = 700, y = 400, width = 220, height = 220)
         
-        b1 = Button(bg_img, text = "Developer", cursor="hand2", font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
+        b1 = Button(bg_img, text = "Developer", cursor="hand2", command=self.open_developer_website, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
         b1.place(x = 700, y = 600, width = 220, height = 40)
         
         #Exit button
@@ -111,10 +114,10 @@ class Face_Recognition_System:
         img8 = img8.resize((220,220), Image.LANCZOS)
         self.photoimg8 = ImageTk.PhotoImage(img8)
         
-        b1 = Button(bg_img, image=self.photoimg8, cursor="hand2")
+        b1 = Button(bg_img, image=self.photoimg8, cursor="hand2", command=self.exit)
         b1.place(x = 1000, y = 400, width = 220, height = 220)
         
-        b1 = Button(bg_img, text = "Exit", cursor="hand2", font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
+        b1 = Button(bg_img, text = "Exit", cursor="hand2", command=self.exit, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
         b1.place(x = 1000, y = 600, width = 220, height = 40)
     
     def open_img(self):
@@ -133,6 +136,44 @@ class Face_Recognition_System:
     def face_data(self):
         self.new_window = Toplevel(self.root)
         self.app = Face_recognition(self.new_window)
+        
+    def attendance_data(self):
+        self.new_window = Toplevel(self.root)
+        self.app = Attendance(self.new_window)
+        
+    def open_developer_website(self):
+        webbrowser.open("https://github.com/KISHORE110504")
+        
+    def show_help_popup(self):
+        def open_link(url):
+            webbrowser.open_new(url)
+        
+        popup = Toplevel(self.root)
+        popup.title("Help Desk")
+        popup.geometry("300x250")
+        
+        Label(popup, text="Contact Us", font=("times new roman", 20, "bold")).pack(pady=10)
+        
+        email_label = Label(popup, text="Email: kishore110504@gmail.com", font=("times new roman", 15), fg="blue", cursor="hand2")
+        email_label.pack(pady=5)
+        email_label.bind("<Button-1>", lambda e: open_link("mailto:kishore110504@gmail.com"))
+
+        instagram_label = Label(popup, text="Instagram: _kish.xx_", font=("times new roman", 15), fg="blue", cursor="hand2")
+        instagram_label.pack(pady=5)
+        instagram_label.bind("<Button-1>", lambda e: open_link("https://www.instagram.com/_kish.xx_/"))
+
+        linkedin_label = Label(popup, text="LinkedIn: kishoreanbu", font=("times new roman", 15), fg="blue", cursor="hand2")
+        linkedin_label.pack(pady=5)
+        linkedin_label.bind("<Button-1>", lambda e: open_link("www.linkedin.com/in/kishoreanbu"))
+        
+        Button(popup, text="Close", command=popup.destroy, font=("times new roman", 12)).pack(pady=10)
+        
+    def exit(self):
+        self.exit = tkinter.messagebox.askyesno("Face Recognition", "Are you sure you want to exit?", parent=self.root)
+        if self.exit > 0:
+            self.root.destroy()
+        else:
+            return
 
 if __name__ == "__main__":
     root = Tk()

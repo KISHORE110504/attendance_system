@@ -177,7 +177,7 @@ class Student:
         radionbtn2 = ttk.Radiobutton(class_Student_frame, variable = self.var_radio1, text="No Photo Sample", value="No")
         radionbtn2.grid(row = 6, column = 1)
         
-        #bbuttons frame
+        #buttons frame
         btn_frame = Frame(class_Student_frame, bd=2, relief=RIDGE, bg="white")
         btn_frame.place(x=4, y=205, width=615, height=70)
         
@@ -286,7 +286,7 @@ class Student:
         else:
             try:
                 
-                conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="face_recognizer", auth_plugin ='mysql_native_password')
+                conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="YOUR_DATABASE", auth_plugin ='mysql_native_password')
                 my_cursor = conn.cursor()
                 my_cursor.execute("insert into student values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (
                                                                                                             self.var_dep.get(),
@@ -314,7 +314,7 @@ class Student:
         
     #Fetch data
     def fetch_data(self):
-        conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="face_recognizer", auth_plugin ='mysql_native_password')
+        conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="YOUR_DATABASE", auth_plugin ='mysql_native_password')
         my_cursor = conn.cursor()
         my_cursor.execute("select * from student")
         data = my_cursor.fetchall()
@@ -355,7 +355,7 @@ class Student:
             try:
                 Update = messagebox.askyesno("Update", "Do you want to update this student details", parent=self.root)
                 if Update > 0:
-                    conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="face_recognizer", auth_plugin ='mysql_native_password')
+                    conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="YOUR_DATABASE", auth_plugin ='mysql_native_password')
                     my_cursor = conn.cursor()
                     my_cursor.execute("Update Student set Dep=%s, course=%s, Year=%s, Semester=%s, Name=%s, Division=%s, Roll=%s, Gender=%s, Dob=%s, Email=%s, Phone=%s, Address=%s, Teacher=%s, PhotoSample=%s where Student_id=%s", (
                                                                                                                                                                                                         self.var_dep.get(),
@@ -393,7 +393,7 @@ class Student:
             try:
                 delete = messagebox.askyesno("Student Delete Page", "Do you want to delete?", parent=self.root)
                 if delete > 0:
-                    conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="face_recognizer", auth_plugin ='mysql_native_password')
+                    conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="YOUR_DATABASE", auth_plugin ='mysql_native_password')
                     my_cursor = conn.cursor()
                     sql = "delete from student where Student_id=%s"
                     val = (self.var_std_id.get(),)
@@ -433,7 +433,7 @@ class Student:
             messagebox.showerror("Error", "All fields are required", parent=self.root)       
         else:
             try:
-                conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="face_recognizer", auth_plugin ='mysql_native_password')
+                conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="YOUR_DATABASE", auth_plugin ='mysql_native_password')
                 my_cursor = conn.cursor()
                 my_cursor.execute("select * from student")
                 myresult = my_cursor.fetchall()
@@ -493,7 +493,7 @@ class Student:
                 cap.release()
                 cv2.destroyAllWindows()
                 messagebox.showinfo("Result", "Generating data sets completed!!!")
-            except exception as es:
+            except Exception as es:
                 messagebox.showerror("Error", f"Due To:{str(es)}", parent = self.root)        
                 
               

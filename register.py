@@ -114,33 +114,33 @@ class Register:
         
         #function declaration
     def register_data(self):
-        if self.var_fname.get() =="" or self.var_email.get() =="" or self.var_security.get() =="Select" or self.var_password.get() =="" or self.var_cpassword.get() =="":
+        if self.var_fname.get() == "" or self.var_email.get() == "" or self.var_security.get() == "Select" or self.var_password.get() == "" or self.var_cpassword.get() == "":
             messagebox.showerror("Error", "All fields are required", parent=self.root)
         elif self.var_password.get() != self.var_cpassword.get():
             messagebox.showerror("Error", "Password and confirm password should be same", parent=self.root)
         else:
-            conn = mysql.connector.connect(host="localhost", user="root", password="Kishore@1105", database="face_recognizer", auth_plugin ='mysql_native_password')
+            conn = mysql.connector.connect(host="localhost", user="root", password="YOUR_PASSWORD", database="YOUR_DATABASE", auth_plugin='mysql_native_password')
             my_cursor = conn.cursor()
-            query = ("select * from register where email = %s")
+            query = ("SELECT * FROM register WHERE email = %s")
             value = (self.var_email.get(),)
             my_cursor.execute(query, value)
             row = my_cursor.fetchone()
-            if row!=None:
-                messagebox.showerror("Error", "User already exist", parent=self.root)
-            else:
-                my_cursor.execute("insert into register values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", (
+            if row != None:
+                messagebox.showerror("Error", "User already exists", parent=self.root)
+            else: 
+                my_cursor.execute("INSERT INTO register (firstname, lastname, contact, email, question, answer, password) VALUES (%s,%s,%s,%s,%s,%s,%s)", (
                     self.var_fname.get(),
                     self.var_lname.get(),
                     self.var_contact.get(),
                     self.var_email.get(),
                     self.var_security.get(),
                     self.var_answer.get(),
-                    self.var_password.get(),    
+                    self.var_password.get()
                 ))
                 conn.commit()
                 conn.close()
                 messagebox.showinfo("Success", "Registered Successfully", parent=self.root)
-            
+                
         
 
 

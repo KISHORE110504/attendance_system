@@ -7,17 +7,23 @@ import cv2
 import random
 import time
 import datetime
+from test import Face_Recognition_System
 
+login_window_open = False
 def main():
-    win = Tk()
-    app = Login_Window(win)
-    win.mainloop()
+    global login_window_open
+    if not login_window_open:
+        login_window_open = True
+        '''win = Tk()
+        app = Login_Window(win)
+        win.mainloop()'''
 
 class Login_Window:
     def __init__(self,root):
         self.root = root
         self.root.geometry("1530x790+0+0")
         self.root.title("Login")
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
@@ -71,6 +77,11 @@ class Login_Window:
         forgetbtn = Button(frame, text= "Forget Password", command = self.forgot_password_window, font=("times new roman", 9, "bold"), borderwidth=0, fg= "black", bg = "white", activeforeground="darkgreen", activebackground="white")
         forgetbtn.place(x=-13, y=405, width=180, height= 25)
     
+    def on_closing(self):
+        global login_window_open
+        login_window_open = False
+        self.root.destroy()
+    
     def register_window(self):
         self.new_window = Toplevel(self.root)
         self.app = Register(self.new_window)
@@ -81,35 +92,58 @@ class Login_Window:
         elif self.txtuser.get()=="admin" and self.txtpass.get()=="admin":
             messagebox.showinfo("Success", "Welcome", parent=self.root)
         else:
-            conn = mysql.connector.connect(host="localhost", user="root", password="Kishore@1105", database="face_recognizer", auth_plugin='mysql_native_password')
+            conn = mysql.connector.connect(host="localhost", user="root", password="[your password]", database="face_recognizer", auth_plugin='mysql_native_password')
             my_cursor = conn.cursor()
             my_cursor.execute("select * from register where email = %s and password = %s", (self.txtuser.get(), self.txtpass.get()))
             row = my_cursor.fetchone()
-            if row != None:
+            if row is None:
                 messagebox.showerror("Error", "Invalid username and password", parent=self.root)
             else:
                 open_main = messagebox.askyesno("YesNo", "Access only admin", parent=self.root)
-                if open_main > 0:
+                if open_main:
                     self.new_window = Toplevel(self.root) 
                     self.app = Face_Recognition_System(self.new_window)
-                else:
-                    if not open_main:
-                        return 
             conn.commit()
             conn.close()
     
-    def forgot_password_window(self):
-        if self.txtuser.get()=="":
-            messagebox.showerror("Error, please enter email id", parent=self.root)
+    def reset_password(self):
+        if self.combo_security.get() == "Select":
+            messagebox.showerror("Error", "Select security question", parent=self.root2)
+        elif self.txt_answer.get() == "":
+            messagebox.showerror("Error", "Please enter security answer", parent=self.root2)
+        elif self.txt_newpassword.get() == "":
+            messagebox.showerror("Error", "Please enter new password", parent=self.root2)
         else:
-            conn = mysql.connector.connect(host="localhost", user="root", password="Kishore@1105", database="face_recognizer", auth_plugin='mysql_native_password')
+            conn = mysql.connector.connect(host="localhost", user="root", password="[your_password]", database="face_recognizer", auth_plugin='mysql_native_password')
+            my_cursor = conn.cursor()
+            query = ("select * from register where email = %s and question = %s and answer = %s")
+            value = (self.txtuser.get(), self.combo_security.get(), self.txt_answer.get())
+            my_cursor.execute(query, value)
+            row = my_cursor.fetchone()
+            if row is None:
+                messagebox.showerror("Error","please enter correct answer", parent=self.root2)
+            else:
+                query = ("update register set password = %s where email = %s")
+                value = (self.txt_newpassword.get(), self.txtuser.get())
+                my_cursor.execute(query, value)
+                
+                conn.commit()
+                conn.close()
+                messagebox.showinfo("Info", "Your password has been reset, Please login with new password", parent=self.root2)
+                self.root2.destroy()
+            
+    def forgot_password_window(self):
+        if self.txtuser.get() == "":
+            messagebox.showerror("Error", "Please enter email id", parent = self.root)
+        else:
+            conn = mysql.connector.connect(host="localhost", user="root", password="[your_password]", database="face_recognizer", auth_plugin='mysql_native_password')
             my_cursor = conn.cursor()
             query = ("select * from register where email = %s")
             value = (self.txtuser.get(),)
             my_cursor.execute(query, value)
             row = my_cursor.fetchone()
             if row == None:
-                messagebox.showerror("Error, please enter valid username", parent=self.root)
+                messagebox.showerror("Error", "Please enter valid email", parent=self.root)
             else:
                 conn.close()
                 self.root2 = Toplevel()
@@ -117,6 +151,29 @@ class Login_Window:
                 self.root2.geometry("350x400+500+200")
                 l = Label(self.root2, text="Forgot Password", font=("times new roman", 20, "bold"), fg="red", bg="white")
                 l.place(x=0, y=0, relwidth=1)
+            
+                security_qus = Label(self.root2, text="Select Security Question", font=("times new roman", 15, "bold"), bg="white")
+                security_qus.place(x=50, y=80)
+                
+                self.combo_security = ttk.Combobox(self.root2,font=("times new roman", 15, "bold"), state="readonly")
+                self.combo_security["values"] = ("Select", "Your Birth Place", "Your Birth Date", "Your Pet Name")
+                self.combo_security.current(0)
+                self.combo_security.place(x=50, y=110, width=250)
+
+                answer = Label(self.root2, text="Answer", font=("times new roman", 15, "bold"), bg="white")
+                answer.place(x=50, y=160)
+                
+                self.txt_answer = ttk.Entry(self.root2, font=("times new roman", 15, "bold"))
+                self.txt_answer.place(x=50, y=190, width=250)      
+                
+                new_password = Label(self.root2, text="New Password", font=("times new roman", 15, "bold"), bg="white")
+                new_password.place(x=50, y=240)
+                
+                self.txt_newpassword = ttk.Entry(self.root2, font=("times new roman", 15, "bold"))
+                self.txt_newpassword.place(x=50, y=270, width=250)        
+                    
+                btn = Button(self.root2, text="Reset", command=self.reset_password, font=("times new roman", 15, "bold"), fg="white", bg="green")
+                btn.place(x=150, y=320, width=100, height=30)   
             
         
 class Register:
@@ -216,7 +273,7 @@ class Register:
         registerbtn.place(x=50, y=420, width=250)
         
         #login button
-        loginbtn = Button(frame, text="Login", font=("times new roman", 15, "bold"), bg="green", fg="white")
+        loginbtn = Button(frame, command = self.return_login, text="Login", font=("times new roman", 15, "bold"), bg="green", fg="white")
         loginbtn.place(x=400, y=420, width=250)
         
         #function declaration
@@ -226,7 +283,7 @@ class Register:
         elif self.var_password.get() != self.var_cpassword.get():
             messagebox.showerror("Error", "Password and confirm password should be same", parent=self.root)
         else:
-            conn = mysql.connector.connect(host="localhost", user="root", password="Kishore@1105", database="face_recognizer", auth_plugin='mysql_native_password')
+            conn = mysql.connector.connect(host="localhost", user="root", password="[your password]", database="face_recognizer", auth_plugin='mysql_native_password')
             my_cursor = conn.cursor()
             query = ("SELECT * FROM register WHERE email = %s")
             value = (self.var_email.get(),)
@@ -248,175 +305,10 @@ class Register:
                 conn.close()
                 messagebox.showinfo("Success", "Registered Successfully", parent=self.root)            
 
-class Face_Recognition_System:
-    def __init__(self,root):
-        self.root = root
-        self.root.geometry("1530x790+0+0")
-        self.root.title("Face Recognition System")
-
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-        self.root.geometry(f"{screen_width}x{screen_height}+0+0")
-        
-        
-        #bg image
-        img = Image.open(r"Images\real_black.png")
-        img = img.resize((1530,790),Image.LANCZOS)
-        self.photoimg = ImageTk.PhotoImage(img)
-        
-        bg_img = Label(self.root, image=self.photoimg)
-        bg_img.place(x=0, y=0, width=screen_width, height=screen_height)
-        
-        title_lbl = Label(bg_img, text="FACE RECOGNITION ATTENDANCE SYSTEM SOFTWARE", font=("times new roman", 35, "bold"), bg="white", fg="darkgreen")
-        title_lbl.place(x=0, y=0, width=screen_width, height=45)
-        
-        #student button
-        img1 = Image.open(r"Images\students.webp")
-        img1 = img1.resize((220,220), Image.LANCZOS)
-        self.photoimg1 = ImageTk.PhotoImage(img1)
-        
-        b1 = Button(bg_img, image=self.photoimg1, command = self.student_details, cursor="hand2")
-        b1.place(x = 100, y = 100, width = 220, height = 220)
-        
-        b1 = Button(bg_img, text = "Student Details", command = self.student_details, cursor="hand2", font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
-        b1.place(x = 100, y = 300, width = 220, height = 40)
-        
-        #Detect Face button
-        img2 = Image.open(r"Images\face_detection.jpg")
-        img2 = img2.resize((220,220), Image.LANCZOS)
-        self.photoimg2 = ImageTk.PhotoImage(img2)
-        
-        b1 = Button(bg_img, image=self.photoimg2, cursor="hand2",command=self.face_data )
-        b1.place(x = 400, y = 100, width = 220, height = 220)
-        
-        b1 = Button(bg_img, text = "Face Detector", cursor="hand2",command=self.face_data, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
-        b1.place(x = 400, y = 300, width = 220, height = 40)
-        
-        #Attendance button
-        img3 = Image.open(r"Images\attendance.jpg")
-        img3 = img3.resize((220,220), Image.LANCZOS)
-        self.photoimg3 = ImageTk.PhotoImage(img3)
-        
-        b1 = Button(bg_img, image=self.photoimg3, cursor="hand2", command= self.attendance_data)
-        b1.place(x = 700, y = 100, width = 220, height = 220)
-        
-        b1 = Button(bg_img, text = "Attendance", cursor="hand2", command= self.attendance_data, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
-        b1.place(x = 700, y = 300, width = 220, height = 40)
-        
-        #Help desk button
-        img4 = Image.open(r"Images\help_desk.webp")
-        img4 = img4.resize((220,220), Image.LANCZOS)
-        self.photoimg4 = ImageTk.PhotoImage(img4)
-        
-        b1 = Button(bg_img, image=self.photoimg4, cursor="hand2", command=self.show_help_popup)
-        b1.place(x = 1000, y = 100, width = 220, height = 220)
-        
-        b1 = Button(bg_img, text = "Help desk", cursor="hand2", command=self.show_help_popup, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
-        b1.place(x = 1000, y = 300, width = 220, height = 40)
-        
-        #Train button
-        img5 = Image.open(r"Images\train_data.png")
-        img5 = img5.resize((220,220), Image.LANCZOS)
-        self.photoimg5 = ImageTk.PhotoImage(img5)
-        
-        b1 = Button(bg_img, image=self.photoimg5, cursor="hand2", command = self.train_data)
-        b1.place(x = 100, y = 400, width = 220, height = 220)
-        
-        b1 = Button(bg_img, text = "Train Data", cursor="hand2", command = self.train_data, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
-        b1.place(x = 100, y = 600, width = 220, height = 40)
-        
-        #Photos button
-        img6 = Image.open(r"Images\photos.png")
-        img6 = img6.resize((220,220), Image.LANCZOS)
-        self.photoimg6 = ImageTk.PhotoImage(img6)
-        
-        b1 = Button(bg_img, image=self.photoimg6, cursor="hand2", command=self.open_img)
-        b1.place(x = 400, y = 400, width = 220, height = 220)
-        
-        b1 = Button(bg_img, text = "Photos", cursor="hand2", command=self.open_img, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
-        b1.place(x = 400, y = 600, width = 220, height = 40)
-        
-        #Developer button
-        img7 = Image.open(r"Images\developer.png")
-        img7 = img7.resize((220,220), Image.LANCZOS)
-        self.photoimg7 = ImageTk.PhotoImage(img7)
-        
-        b1 = Button(bg_img, image=self.photoimg7, cursor="hand2", command=self.open_developer_website)
-        b1.place(x = 700, y = 400, width = 220, height = 220)
-        
-        b1 = Button(bg_img, text = "Developer", cursor="hand2", command=self.open_developer_website, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
-        b1.place(x = 700, y = 600, width = 220, height = 40)
-        
-        #Exit button
-        img8 = Image.open(r"Images\exit.png")
-        img8 = img8.resize((220,220), Image.LANCZOS)
-        self.photoimg8 = ImageTk.PhotoImage(img8)
-        
-        b1 = Button(bg_img, image=self.photoimg8, cursor="hand2", command=self.exit)
-        b1.place(x = 1000, y = 400, width = 220, height = 220)
-        
-        b1 = Button(bg_img, text = "Exit", cursor="hand2", command=self.exit, font=("times new roman", 15, "bold"), bg="white", fg="darkgreen")
-        b1.place(x = 1000, y = 600, width = 220, height = 40)
+    def return_login(self):
+        self.root.destroy()
     
-    def open_img(self):
-        os.startfile("data")
-        
-    #functions buttons
-        
-    def student_details(self):
-        self.new_window = Toplevel(self.root)
-        self.app = Student(self.new_window)
-        
-    def train_data(self):
-        self.new_window = Toplevel(self.root)
-        self.app = Train(self.new_window)
-        
-    def face_data(self):
-        self.new_window = Toplevel(self.root)
-        self.app = Face_recognition(self.new_window)
-        
-    def attendance_data(self):
-        self.new_window = Toplevel(self.root)
-        self.app = Attendance(self.new_window)
-        
-    def open_developer_website(self):
-        webbrowser.open("https://github.com/KISHORE110504")
-        
-    def show_help_popup(self):
-        def open_link(url):
-            webbrowser.open_new(url)
-        
-        popup = Toplevel(self.root)
-        popup.title("Help Desk")
-        popup.geometry("300x250")
-        
-        Label(popup, text="Contact Us", font=("times new roman", 20, "bold")).pack(pady=10)
-        
-        email_label = Label(popup, text="Email: kishore110504@gmail.com", font=("times new roman", 15), fg="blue", cursor="hand2")
-        email_label.pack(pady=5)
-        email_label.bind("<Button-1>", lambda e: open_link("mailto:kishore110504@gmail.com"))
 
-        instagram_label = Label(popup, text="Instagram: _kish.xx_", font=("times new roman", 15), fg="blue", cursor="hand2")
-        instagram_label.pack(pady=5)
-        instagram_label.bind("<Button-1>", lambda e: open_link("https://www.instagram.com/_kish.xx_/"))
-
-        linkedin_label = Label(popup, text="LinkedIn: kishoreanbu", font=("times new roman", 15), fg="blue", cursor="hand2")
-        linkedin_label.pack(pady=5)
-        linkedin_label.bind("<Button-1>", lambda e: open_link("www.linkedin.com/in/kishoreanbu"))
-        
-        Button(popup, text="Close", command=popup.destroy, font=("times new roman", 12)).pack(pady=10)
-        
-    def exit(self):
-        self.exit = tkinter.messagebox.askyesno("Face Recognition", "Are you sure you want to exit?", parent=self.root)
-        if self.exit > 0:
-            self.root.destroy()
-        else:
-            return
-        
-        
-        
-        
-        
 if __name__ == "__main__":
     main()
     root = Tk()

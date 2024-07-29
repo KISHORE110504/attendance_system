@@ -6,6 +6,8 @@ import mysql.connector
 import cv2
 import os
 import numpy as np
+from time import strftime
+from datetime import datetime
 
 
 class Face_recognition:
@@ -39,6 +41,20 @@ class Face_recognition:
         #button
         b1 = Button(f_lbl, text = "FACE RECOGNITION", cursor="hand2", command=self.face_recog, font=("times new roman", 13, "bold"), bg="darkgreen", fg="white")
         b1.place(x = 350, y = 250, width =200, height = 40)
+    
+    #attendance
+    def mark_attendance(self, i, r, n, d):
+        with open("Attendance.csv","r+",newline="\n") as f:
+            myDataList = f.readlines()
+            name_list = []
+            for line in myDataList:
+                entry = line.split((","))
+                name_list.append(entry[0])
+            if((i not in name_list) and (r not in name_list) and (n not in name_list) and (d not in name_list)):
+                now = datetime.now()
+                d1 = now.strftime("%d/%m/%Y")
+                dtString = now.strftime("%H:%M:%S")
+                f.writelines(f"\n{i},{r},{n},{d},{dtString},Present,{d1}")
 
                    
     #face recognition
@@ -54,7 +70,7 @@ class Face_recognition:
                 id,predict = clf.predict(gray_image[y:y+h,x:x+w])
                 confidence = int((100*(1-predict/300)))
                 
-                conn = mysql.connector.connect(host="localhost", user="root", password="YOUR PASSWORD", database="face_recognizer", auth_plugin ='mysql_native_password')
+                conn = mysql.connector.connect(host="localhost", user="root", password="[your_password]", database="face_recognizer", auth_plugin ='mysql_native_password')
                 my_cursor = conn.cursor()
                 
                 my_cursor.execute("Select Name from student where Student_id="+str(id))
@@ -69,10 +85,16 @@ class Face_recognition:
                 d = my_cursor.fetchone()
                 d = "+".join(d)
                 
+                my_cursor.execute("Select Student_id from student where Student_id="+str(id))
+                i = my_cursor.fetchone()
+                i = "+".join(i)
+                
                 if confidence > 77:
+                    cv2.putText(img, f"ID: {i}", (x,y-75), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255,255,255), 3)
                     cv2.putText(img, f"Roll: {r}", (x,y-55), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255,255,255), 3)
                     cv2.putText(img, f"Name: {n}", (x,y-30), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255,255,255), 3)
                     cv2.putText(img, f"Department: {d}", (x,y-5), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255,255,255), 3)
+                    self.mark_attendance(i,r,n,d)
                 
                 else:
                     cv2.rectangle(img, (x,y), (x+w,y+h), (0,0,255), 3)
